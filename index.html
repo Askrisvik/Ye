@@ -63,6 +63,7 @@ let pipeTimer = 0;
 
 // Input
 document.addEventListener("keydown", e => {
+    e.preventDefault();  // Hindrer scrolling
     if (e.code === "Space") flap();
 });
 canvas.addEventListener("click", flap);
@@ -138,6 +139,13 @@ function updatePipes() {
         }
     });
 
+    // Fjern rør som er ute av skjermen
+    for (let i = pipes.length - 1; i >= 0; i--) {
+        if (pipes[i].x + pipeWidth < 0) {
+            pipes.splice(i, 1);
+        }
+    }
+
     if (pancake.y > canvas.height || pancake.y < 0) {
         gameOver = true;
     }
@@ -157,21 +165,24 @@ function drawScore() {
 }
 
 function update() {
+    if (gameOver) return; // Ikke oppdater når spillet er over
+
+    // Oppdater spilltilstand
+    pancake.velocity += pancake.gravity;
+    pancake.y += pancake.velocity;
+    updatePipes();
+
+    // Tegn spillet
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (!gameOver) {
-        pancake.velocity += pancake.gravity;
-        pancake.y += pancake.velocity;
-        updatePipes();
-    }
-
     drawPipes();
     drawPancake();
     drawScore();
 
+    // Spillet oppdateres så raskt som skjermen kan håndtere
     requestAnimationFrame(update);
 }
 
+// Start oppdateringssløyfen
 update();
 </script>
 
